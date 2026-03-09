@@ -164,91 +164,162 @@ $hive
 Practical No 5 Working with different types of tables in hive
 Internal Table : 
 $hive 
-> create database licdw; 
+> create database collage1; 
 > show databases; 
-> use licdw;
-
-> create table customer ( id int, 
-name string, dob string, 
-email string, contactno string , 
-address string, gender string) 
-row format delimited fields terminated by ‘,’ ; 
->show tables ;
-> exit
+> use collage1;
+> exit;
 $gedit studdata.txt
+---TXT.FILE DATA---
+ 101,AAA,CS,75
+ 102,BBB,DS,67
+ 103,CCC,UT,87
+$hive
+> use college1;
+> describe formatted student;
+> load data local inpath '/home/coludera/studdata.csv' into table student;
+>select * form student;
+> create  table customer (id int , 
+name string, 
+dob string,
+email string,
+contact string,
+add string,
+gender string)
+row format delimited fields terminated by ‘,’ ;
+> exit;
+$ gedit cusdata.csv;
+$ hive;
+$ hdfs dfs -mkdir /hadoop
+$ hdfs dfs -mkdir /hadoop/data
+$ hdfs dfs -put custdata.csv /hadoop/data
 $ hive
-> describe formatted customer; 
-
->load data local inpath ‘/home/cloudera/customer.csv’ into table customer ; 
->select * form customer ;
+> use licdw;
+> load data inpath '/hadoop/data/custdata.csv'into table customer;
+> select* from customer;
 
 External
->gedit policydetails.csv
->gedit policydetails.csv
-
+>use licdw;
 >create external table policy_details (id int , 
 name string, 
 type string, 
 age_criteria int, 
 tenure int , 
 maturity string) row format delimited fields terminated by ‘,’ 
-stored as textfile location ‘/home/cloudera/policy_detail_data’ ; 
+stored as textfile location ‘/home/cloudera/policydetail_data’ ; 
 >load data local inpath ‘/home/cloudera/Desktop/policydetails.csv’ into table policy_details; 
 > select * from policy_details ;
 
->hdfs dfs -ls hdfs://quickstart.cloudera:8020/home/cloudera/policy_detail_data 
-> hdfs dfs -cat hdfs://quickstart.cloudera:8020/home/cloudera/policy_detail_data/policydetails.csv
-
 Temporary Table
-Temp Table :
 >create temporary table policy_details_temp ( id int,
 name string,
 type string,
 age_criteria int ,
 tenure int,
-maturity string)
+maturity string);
 > describe policy_details_temp ;
 > insert into policy_details_temp values (32, ‘abc’ , ‘h’ , 32 , 3 , ‘40%’);
->select * from policy_details_temp;
-> show tables ;
-Close the existing hive session and open a new hive session
->use licdw;
+>insert into policy_details_temp values (33, ‘afc’ , ‘r’ , 32 , 3 , ‘44%’);
 >show tables 
+>select * from policy_det_temp;
+>create table policy_det_dup as select * from policy_deatils;
+>select * from plicy_det_dup;
+>create table policy_det_like like policy_details;
+>select * from policy_det_like;
 
-Practical 5 : B. Demonstrating table partitioning , clustering (Bucketing in
-hive)
+Practical 5 : B. Demonstrating table partitioning , clustering (Bucketing in hive)
 1. Create and partition a table named emppartition on the mobile no column and load data into it
-> create table emppartition( emp_id int ,
- name string ) partitioned by (m_no string)
- row format delimited fields terminated by ‘,’ ;
-> set hive.exec.dynamic.partition.mode = nonstrict;
-> insert into emppartition partition(m_no) values (1, ‘uday’ , ‘89272861’) ;
-> insert into emppartition partition(m_no) values (2, ‘jay’ , ‘89272861’) ;
-> insert into emppartition partition(m_no) values (3, ‘nikhil’ , ‘47252258’) ;
-> select * from emppartition ;
+$hive
+>create database licdw;
+>use licdw;
+>create table emppartition(
+empid int,
+name string
+)
+partitioned by (mno string)
+row format delimited
+fields terminated by ",";
+
+>set hive.exec.dynamic.partition.mode=nonstrict;
+>insert into emppartition partition(mno) values(1,'uday','89272861');
+>insert into emppartition partition(mno) values(2,'jay','89272861');
+>insert into emppartition partition(mno) values(3,'nikhil','47252258');
+
+select * from emppartition;
+
 2. Create a table emp_buck_no_partition with only bucketing on the m_no column and
 load data into table.
-> create table emp_buck_no_partition( emp_id int , name string , m_no string)
- clustered by(m_no) into 5 buckets ;
-> insert into emp_buck_no_partition values(1 , ‘abc’ , ‘929272916’) ;
-> select * from emp_buck_no_partition ;
-3. Create a table named emp_buck_with_partition on m_no column and load data intoit.
-> create table emp_buck_with_partition ( emp_id int , name string , m_no string)
- partitioned by (m_no2 string) clustered by(m_no) into 5 buckets ;
-> set hive.exec.dynamic.partition.mode = nonstrict ;
-> insert into emp_buck_with_partition partition(m_no2) values(1, ‘xyz’ , ‘8927927’ , ‘12345’ ) ;
+$hive;
+>Create bucketed table
+create table emp_buck_no_part(
+empid int,
+name string,
+mno string
+) clustered by (mno) into 5 buckets;
 
-8. Delete column family student address from student table
->alter ‘studentdata’ , ‘delete’ => ‘studaddress’ 
-9. Check if the student table exists using exists and list keywords , now drop table student and again check if the student exists 
->exists ‘studentdata’ 
->list 
->disable ‘studentdata’ 
-> drop ‘studentdata’ 
->list 
->exists ‘studentdata’
+>insert into emp_buck_no_part values(1,'abc','9654532165');
+>insert into emp_buck_no_part values(2,'def','9589548213');
+>insert into emp_buck_no_part values(3,'hgj','9589548213');
+>insert into emp_buck_no_part values(4,'gog','9654532165');
+>describe formatted emp_buck_no_part;
+>select * from emp_buck_no_part;
 
+3. Create emp_buck_with_part on mno column and load data into it.
+$hive;
+>create table emp_buck_part(
+empid int,
+name string,
+mno string
+) partitioned by (dept string) clustered by (mno) into 5 buckets row format delimited
+fields terminated by ',';
 
+>insert into emp_buck_part partition(dept='HR')values(1,'Alice','50000');
+
+>insert into emp_buck_part partition(dept='IT') values(2,'Bob','60000');
+>select * from emp_buck_part;
+
+4.Create table empdata with partition(dept) and clustered by empid and load data into it.
+>create table empdata(
+empid int,
+name string,
+salary int
+)
+partitioned by (dept string)
+clustered by (salary) into 4 buckets;
+
+>insert into empdata partition(dept='HR') values(1,'Alice',50000);
+>insert into empdata partition(dept='IT')values(2,'Bob',60000);
+>select * from empdata;
+
+5.Create table sales_data partitioned by year and month and load data into it.
+
+>Create table
+CREATE TABLE sales_data(
+orderid INT,
+product STRING,
+amount DOUBLE
+)
+PARTITIONED BY (year INT, month INT);
+
+>CREATE TABLE temp_sales(
+orderid STRING,
+product STRING,
+amount DOUBLE,
+month INT
+);
+
+>INSERT INTO temp_sales VALUES (1,'Laptop',1200,1);
+>INSERT INTO temp_sales VALUES (2,'Keyboard',75,2);
+>INSERT INTO temp_sales VALUES (3,'Monitor',300,2);
+>INSERT INTO temp_sales VALUES (4,'Mouse',40,3);
+
+>SET hive.exec.dynamic.partition.mode=nonstrict;
+>Insert data into partition table
+>INSERT INTO sales_data PARTITION(year=2023, month)
+>SELECT orderid, product, amount, month
+>FROM temp_sales;
+
+>SELECT * FROM sales_data;
+>SHOW PARTITIONS sales_data;
     
 Practicsl 7 A simple pyspark driver program
 

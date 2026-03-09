@@ -90,103 +90,75 @@ for name, model in pipelines.items():
 
 Practical No 3 Working with NoSQL database – Hbase
 Creating a Linkshare in hbase
-$hbase shell
->create ‘studentdata’ , ‘studid’ , ‘studname’ , ‘studaddress
-> list
-
---Inserting the values in the linkshare
->scan ‘studentdata’
+$ hbase shell
+>create ‘studentrj’,’studid’,’studname’,’studaddr’
+>list
+>describe ’studentrj’
+>put ‘studentrj’,’1’,’studid:id’,101
+>put ‘studentrj’,1’,’studname:name’,’Kartik’
+>put ‘studentrj’,’1’’studaddr:addr’,’Mumbai’
+>scan ‘studentrj
 
 1. Get the value for column place for student with id 1 using the column key word . 
 >get ‘studentdata’ , ‘1’ ,{COLUMN => ‘studentaddress : place’ }
 
 2. Retrieve all column values for student with id 1 
->get ‘studentdata’ , ‘1’
+>get ‘studentrj’ , ‘1’
 
 3.Get the records for student with id 2 , 3 , and 4 
->get ‘studentdata’ , ‘02’ 
->get ‘studentdata’ , ‘03’ 
->get ‘studentdata’ , ‘04’
+>get ‘studentrj’ , ‘02’ 
+>get ‘studentrj’ , ‘03’ 
+>get ‘studentrj’ , ‘04’
 4.Get all the column values for column family student address for student with id=1 without using columns keyword 
->get ‘studentdata’ , ‘1’ , ‘studaddress’
+>get ‘studentrj’ , ‘1’ , ‘studaddress’
 
 5.Change the lastname for studentid 1 from original to Kelar and then check the record to see if the changes are done 
->put ‘studentdata’ , ‘1’ , ‘studname:lname’ , ‘Kelkar’
+>put ‘studentrj’ , ‘1’ , ‘studname:lname’ , ‘Kelkar’
 
 #Perfrom the following processes on the student table
 
 1.Count the number of records 
->count ‘studentdata’
+>count ‘studentrj’
 
 2.Disable the table 
->disable studentdata’
+>disable studentrj’
 
 3.Verify if the table is disabled 
->is_disabled ‘studentdata’
+>is_disabled ‘studentrj’
 
 4.Enable the table again and scan the table 
->enable ‘studentdata’ 
->scan ‘studentdata’
+>enable ‘studentrj’ 
+>scan ‘studentrj’
 
 5. Delete the column middle name for student with id 4 
->delete ‘studentdata’ , ‘04’ , ‘studname : mname’
+>delete ‘studentrj’ , ‘04’ , ‘studname : mname’
 
 6.Delete all the column families and columns for record 4 
->deleteall ‘studentdata’ , ‘04’
+>deleteall ‘studentrj’ , ‘04’
 
 7.Set the maximum number of cell changes for student address column family to 5
->alter ‘studentdata’ , NAME => ‘studaddress’ , VERSIONS =>5
+>alter ‘studentrj’ , NAME => ‘studaddress’ , VERSIONS =>5
 
 Practical no 4 Simulating Datawarehouse environment
 Part 1 Create a datawarehouse database named college1. 
 2. Check the created database
-$hive 
->create database college ;
+$hive
+>create database college;
+>use college;
+>create table student(rollno int,name string,course string,marks float) row format delimited fields terminated by ’,’ stored as textfile;
+>exit
 
-3.In the database create a table student with columns roll_no int , name String ,course String, marks float , the fields in the table must be separated by ‘,’. 
-> use college ; 
-> create table student ( roll_no int , name string , 
-Course string , marks float) 
-row format delimited fields terminated by ‘,’ ; 
-
-4.Create a txt file in Hadoop cluster and load the data from that txt file in the student table 
->exits ; 
-$gedit stud1.txt
-
->hdfs dfs -mkdir /hadoop2
-> hdfs dfs -mkdir /hadoop2/data
-> hdfs dfs -put stud1.txt /hadoop2/data 
-> hdfs dfs -ls
-
-5.Display the data in the student table 
-$hive 
-> use college; 
-> describe formatted stud ; 
-> load data inpath ‘/hadoop1/data/stud1.txt’ into table stud;
->select* frm stud;
-
-Part 2: 
-Create a csv file to store the data of insurance policies customers and enter some data 
->gedit customer.csv
-
-
-2.Create a database in hive name licdw , inside create table named customer with column id , name , dob , email id , conatctno , address, and gender 
-$hive 
-> create database licdw; 
-> show databases; 
-> use licdw;
-
-> create table customer ( id int, 
-name string, dob string, 
-email string, contactno string , 
-address string, gender string) 
-row format delimited fields terminated by ‘,’ ; 
->show tables ; 
-> describe customer;
-
-3.Load the data from the csv file in the customer table 
->load data local inpath ‘/home/cloudera/customer.csv’ into table customer ; 
->select * form customer ;
+>gedit studdata.txt
+Inside enter:
+101,Kartik,DS,35
+102,Shruti,CS,45
+103,Samruddhi,IT,35
+Contorl+S and close it
+$hive
+>use college;
+>describe formatted student;
+>load data local inpath ‘/home/cloudera/studdata.txt’ into table student;
+>select*from student;
 
 
 Practical No 5 Working with different types of tables in hive

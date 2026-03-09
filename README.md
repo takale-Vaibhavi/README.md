@@ -90,7 +90,7 @@ for name, model in pipelines.items():
 
 Practical No 3 Working with NoSQL database – Hbase
 Creating a Linkshare in hbase
->hbase shell
+$hbase shell
 >create ‘studentdata’ , ‘studid’ , ‘studname’ , ‘studaddress
 > list
 
@@ -138,10 +138,9 @@ Creating a Linkshare in hbase
 >alter ‘studentdata’ , NAME => ‘studaddress’ , VERSIONS =>5
 
 Practical no 4 Simulating Datawarehouse environment
-Part 1 
-Create a datawarehouse database named college1. 
+Part 1 Create a datawarehouse database named college1. 
 2. Check the created database
->hive 
+$hive 
 >create database college ;
 
 3.In the database create a table student with columns roll_no int , name String ,course String, marks float , the fields in the table must be separated by ‘,’. 
@@ -152,7 +151,7 @@ row format delimited fields terminated by ‘,’ ;
 
 4.Create a txt file in Hadoop cluster and load the data from that txt file in the student table 
 >exits ; 
->gedit stud1.txt
+$gedit stud1.txt
 
 >hdfs dfs -mkdir /hadoop2
 > hdfs dfs -mkdir /hadoop2/data
@@ -160,7 +159,7 @@ row format delimited fields terminated by ‘,’ ;
 > hdfs dfs -ls
 
 5.Display the data in the student table 
->hive 
+$hive 
 > use college; 
 > describe formatted stud ; 
 > load data inpath ‘/hadoop1/data/stud1.txt’ into table stud;
@@ -172,7 +171,7 @@ Create a csv file to store the data of insurance policies customers and enter so
 
 
 2.Create a database in hive name licdw , inside create table named customer with column id , name , dob , email id , conatctno , address, and gender 
->hive 
+$hive 
 > create database licdw; 
 > show databases; 
 > use licdw;
@@ -192,7 +191,7 @@ row format delimited fields terminated by ‘,’ ;
 
 Practical No 5 Working with different types of tables in hive
 Internal Table : 
->hive 
+$hive 
 > create database licdw; 
 > show databases; 
 > use licdw;
@@ -202,8 +201,11 @@ name string, dob string,
 email string, contactno string , 
 address string, gender string) 
 row format delimited fields terminated by ‘,’ ; 
->show tables ; 
-> describe customer; 
+>show tables ;
+> exit
+$gedit studdata.txt
+$ hive
+> describe formatted customer; 
 
 >load data local inpath ‘/home/cloudera/customer.csv’ into table customer ; 
 >select * form customer ;

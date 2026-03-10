@@ -320,6 +320,37 @@ month INT
 
 >SELECT * FROM sales_data;
 >SHOW PARTITIONS sales_data;
+
+Practical No. 6: Demonstrating Publisher/Subscriber messaging system using 
+Kafka. 
+Step 1: Install Java jdk and make environment variable named JAVA_HOME with 
+jdk path. 
+Step 2: Paste “%JAVA_HOME\bin” in the system variables PATH.
+Step 4: Open zookeeper.properties and changes its dataDir to 
+“C:\kafka\zookeeper-data”. 
+Step 5: Open server.properties and change its log.dirs to C:\kafka\kafka-logs. 
+Step 3: Install “kafka_2.12-3.7.0” and extract its files in C:\kafka.
+Step 6: Open Windows Powershell as administrator and run this command to start 
+zookeeper server. 
+cd C:\kafka 
+.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+ 
+Step 7: Open another Windows Powershell as administrator and run this command 
+to start kafka server. 
+cd C:\kafka 
+.\bin\windows\kafka-server-start.bat .\config\server.properties
+
+Step 8: Open Command Prompt with “C:\kafka\kafka_2.12-3.7.0\bin\windows” 
+and run this command to create topic ‘test’. 
+kafka-topics.bat --create --bootstrap-server localhost:9092 -
+replication-factor 1 --partitions 1 --topic test
+ 
+Step 9: Open another Command Prompt with “C:\kafka\kafka_2.12
+3.7.0\bin\windows” and run this command to create producer. 
+kafka-console-producer.bat --broker-list localhost:9092 --topic test
+ Step 10: Open another Command Prompt with “C:\kafka\kafka_2.12
+3.7.0\bin\windows” and run this command to create consumer. 
+kafka-console-consumer.bat --bootstrap-server localhost:9092 --t
     
 Practicsl 7 A simple pyspark driver program
 

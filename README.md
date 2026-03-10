@@ -1,492 +1,343 @@
-Prac 1 Data Extraction Using Web Scraping
+Practical no 1Decompose time series data to find trend, seasonality, cyclic and irregularity.
 
-'''import pandas as pd
-import requests
-from bs4 import BeautifulSoup
-
-url = "https://www.worldometers.info/world-population/population-by-country/"
-src = requests.get(url)
-print("Status code:", src.status_code)
-soup = BeautifulSoup(src.content, "lxml")
-table = soup.find("table")
-
- #Extract headers
-cols = [th.get_text(strip=True) for th in table.find("thead").find_all("th")]
-
- #Extract rows
-rows = table.find("tbody").find_all("tr")
-
-data = []
-for r in rows:
-    row = [td.get_text(strip=True) for td in r.find_all("td")]
-    data.append(row)
-
- #Create dataframe
-df = pd.DataFrame(data, columns=cols)
-print(df.head())'''
-
-Prac 2 Create ML pipeline(workflow) using python libraries
-
-'''# Import libraries
 import pandas as pd
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+from statsmodels.tsa.seasonal import STL
 
 # Load dataset
-data = load_breast_cancer()
-
-# Convert to DataFrame
-df = pd.DataFrame(data.data, columns=data.feature_names)
-df["class"] = data.target
-
-# Features and target
-X = df.drop("class", axis=1)
-y = df["class"]
-
-# Train test split
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.25, random_state=42
-)
-
-# Create pipelines for models
-pipelines = {
-    "Logistic Regression": Pipeline([
-        ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=3)),
-        ("model", LogisticRegression())
-    ]),
-    "Decision Tree": Pipeline([
-        ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=3)),
-        ("model", DecisionTreeClassifier())
-    ]),
-    "Naive Bayes": Pipeline([
-        ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=3)),
-        ("model", GaussianNB())
-    ]),
-    "Random Forest": Pipeline([
-        ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=3)),
-        ("model", RandomForestClassifier())
-    ])
-}
-
-
- # Train models and check accuracy
-for name, model in pipelines.items():
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-    print(name, "Accuracy:", acc)'''
-
-Practical No 3 Working with NoSQL database – Hbase
-Creating a Linkshare in hbase
-$ hbase shell
->create ‘studentrj’,’studid’,’studname’,’studaddr’
->list
->describe ’studentrj’
->put ‘studentrj’,’1’,’studid:id’,101
->put ‘studentrj’,1’,’studname:name’,’Kartik’
->put ‘studentrj’,’1’’studaddr:addr’,’Mumbai’
->scan ‘studentrj
-
-1. Get the value for column place for student with id 1 using the column key word . 
->get ‘studentdata’ , ‘1’ ,{COLUMN => ‘studentaddress : place’ }
-
-2. Retrieve all column values for student with id 1 
->get ‘studentrj’ , ‘1’
-
-3.Get the records for student with id 2 , 3 , and 4 
->get ‘studentrj’ , ‘02’ 
->get ‘studentrj’ , ‘03’ 
->get ‘studentrj’ , ‘04’
-4.Get all the column values for column family student address for student with id=1 without using columns keyword 
->get ‘studentrj’ , ‘1’ , ‘studaddress’
-
-5.Change the lastname for studentid 1 from original to Kelar and then check the record to see if the changes are done 
->put ‘studentrj’ , ‘1’ , ‘studname:lname’ , ‘Kelkar’
-
-#Perfrom the following processes on the student table
-
-1.Count the number of records 
->count ‘studentrj’
-
-2.Disable the table 
->disable studentrj’
-
-3.Verify if the table is disabled 
->is_disabled ‘studentrj’
-
-4.Enable the table again and scan the table 
->enable ‘studentrj’ 
->scan ‘studentrj’
-
-5. Delete the column middle name for student with id 4 
->delete ‘studentrj’ , ‘04’ , ‘studname : mname’
-
-6.Delete all the column families and columns for record 4 
->deleteall ‘studentrj’ , ‘04’
-
-7.Set the maximum number of cell changes for student address column family to 5
->alter ‘studentrj’ , NAME => ‘studaddress’ , VERSIONS =>5
-
-Practical no 4 Simulating Datawarehouse environment
-Part 1 Create a datawarehouse database named college1. 
-2. Check the created database
-$hive
->create database college;
->use college;
->create table student(rollno int,name string,course string,marks float) row format delimited fields terminated by ’,’ stored as textfile;
->exit
-
->gedit studdata.txt
-Inside enter:
-101,Kartik,DS,35
-102,Shruti,CS,45
-103,Samruddhi,IT,35
-Contorl+S and close it
-$hive
->use college;
->describe formatted student;
->load data local inpath ‘/home/cloudera/studdata.txt’ into table student;
->select*from student;
-
-
-Practical No 5 Working with different types of tables in hive
-Internal Table : 
-$hive 
-> create database collage1; 
-> show databases; 
-> use collage1;
-> exit;
-$gedit studdata.txt
----TXT.FILE DATA---
- 101,AAA,CS,75
- 102,BBB,DS,67
- 103,CCC,UT,87
-$hive
-> use college1;
-> describe formatted student;
-> load data local inpath '/home/coludera/studdata.csv' into table student;
->select * form student;
-> create  table customer (id int , 
-name string, 
-dob string,
-email string,
-contact string,
-add string,
-gender string)
-row format delimited fields terminated by ‘,’ ;
-> exit;
-$ gedit cusdata.csv;
-$ hive;
-$ hdfs dfs -mkdir /hadoop
-$ hdfs dfs -mkdir /hadoop/data
-$ hdfs dfs -put custdata.csv /hadoop/data
-$ hive
-> use licdw;
-> load data inpath '/hadoop/data/custdata.csv'into table customer;
-> select* from customer;
-
-External
->use licdw;
->create external table policy_details (id int , 
-name string, 
-type string, 
-age_criteria int, 
-tenure int , 
-maturity string) row format delimited fields terminated by ‘,’ 
-stored as textfile location ‘/home/cloudera/policydetail_data’ ; 
->load data local inpath ‘/home/cloudera/Desktop/policydetails.csv’ into table policy_details; 
-> select * from policy_details ;
-
-Temporary Table
->create temporary table policy_details_temp ( id int,
-name string,
-type string,
-age_criteria int ,
-tenure int,
-maturity string);
-> describe policy_details_temp ;
-> insert into policy_details_temp values (32, ‘abc’ , ‘h’ , 32 , 3 , ‘40%’);
->insert into policy_details_temp values (33, ‘afc’ , ‘r’ , 32 , 3 , ‘44%’);
->show tables 
->select * from policy_det_temp;
->create table policy_det_dup as select * from policy_deatils;
->select * from plicy_det_dup;
->create table policy_det_like like policy_details;
->select * from policy_det_like;
-
-Practical 5 : B. Demonstrating table partitioning , clustering (Bucketing in hive)
-1. Create and partition a table named emppartition on the mobile no column and load data into it
-$hive
->create database licdw;
->use licdw;
->create table emppartition(
-empid int,
-name string
-)
-partitioned by (mno string)
-row format delimited
-fields terminated by ",";
-
->set hive.exec.dynamic.partition.mode=nonstrict;
->insert into emppartition partition(mno) values(1,'uday','89272861');
->insert into emppartition partition(mno) values(2,'jay','89272861');
->insert into emppartition partition(mno) values(3,'nikhil','47252258');
-
-select * from emppartition;
-
-2. Create a table emp_buck_no_partition with only bucketing on the m_no column and
-load data into table.
-$hive;
->Create bucketed table
-create table emp_buck_no_part(
-empid int,
-name string,
-mno string
-) clustered by (mno) into 5 buckets;
-
->insert into emp_buck_no_part values(1,'abc','9654532165');
->insert into emp_buck_no_part values(2,'def','9589548213');
->insert into emp_buck_no_part values(3,'hgj','9589548213');
->insert into emp_buck_no_part values(4,'gog','9654532165');
->describe formatted emp_buck_no_part;
->select * from emp_buck_no_part;
-
-3. Create emp_buck_with_part on mno column and load data into it.
-$hive;
->create table emp_buck_part(
-empid int,
-name string,
-mno string
-) partitioned by (dept string) clustered by (mno) into 5 buckets row format delimited
-fields terminated by ',';
-
->insert into emp_buck_part partition(dept='HR')values(1,'Alice','50000');
-
->insert into emp_buck_part partition(dept='IT') values(2,'Bob','60000');
->select * from emp_buck_part;
-
-4.Create table empdata with partition(dept) and clustered by empid and load data into it.
->create table empdata(
-empid int,
-name string,
-salary int
-)
-partitioned by (dept string)
-clustered by (salary) into 4 buckets;
-
->insert into empdata partition(dept='HR') values(1,'Alice',50000);
->insert into empdata partition(dept='IT')values(2,'Bob',60000);
->select * from empdata;
-
-5.Create table sales_data partitioned by year and month and load data into it.
-
->Create table
-CREATE TABLE sales_data(
-orderid INT,
-product STRING,
-amount DOUBLE
-)
-PARTITIONED BY (year INT, month INT);
-
->CREATE TABLE temp_sales(
-orderid STRING,
-product STRING,
-amount DOUBLE,
-month INT
-);
-
->INSERT INTO temp_sales VALUES (1,'Laptop',1200,1);
->INSERT INTO temp_sales VALUES (2,'Keyboard',75,2);
->INSERT INTO temp_sales VALUES (3,'Monitor',300,2);
->INSERT INTO temp_sales VALUES (4,'Mouse',40,3);
-
->SET hive.exec.dynamic.partition.mode=nonstrict;
->Insert data into partition table
->INSERT INTO sales_data PARTITION(year=2023, month)
->SELECT orderid, product, amount, month
->FROM temp_sales;
-
->SELECT * FROM sales_data;
->SHOW PARTITIONS sales_data;
-
-Practical No. 6: Demonstrating Publisher/Subscriber messaging system using 
-Kafka. 
-Step 1: Install Java jdk and make environment variable named JAVA_HOME with 
-jdk path. 
-Step 2: Paste “%JAVA_HOME\bin” in the system variables PATH.
-Step 4: Open zookeeper.properties and changes its dataDir to 
-“C:\kafka\zookeeper-data”. 
-Step 5: Open server.properties and change its log.dirs to C:\kafka\kafka-logs. 
-Step 3: Install “kafka_2.12-3.7.0” and extract its files in C:\kafka.
-Step 6: Open Windows Powershell as administrator and run this command to start 
-zookeeper server. 
-cd C:\kafka 
-.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
- 
-Step 7: Open another Windows Powershell as administrator and run this command 
-to start kafka server. 
-cd C:\kafka 
-.\bin\windows\kafka-server-start.bat .\config\server.properties
-
-Step 8: Open Command Prompt with “C:\kafka\kafka_2.12-3.7.0\bin\windows” 
-and run this command to create topic ‘test’. 
-kafka-topics.bat --create --bootstrap-server localhost:9092 -
-replication-factor 1 --partitions 1 --topic test
- 
-Step 9: Open another Command Prompt with “C:\kafka\kafka_2.12
-3.7.0\bin\windows” and run this command to create producer. 
-kafka-console-producer.bat --broker-list localhost:9092 --topic test
- Step 10: Open another Command Prompt with “C:\kafka\kafka_2.12
-3.7.0\bin\windows” and run this command to create consumer. 
-kafka-console-consumer.bat --bootstrap-server localhost:9092 --t
-    
-Practicsl 7 A simple pyspark driver program
-
-''' # Import libraries
-from pyspark.sql import SparkSession
-
- # Create Spark session
-spark = SparkSession.builder.appName("SquareNumbers").getOrCreate()
-
- # Get Spark context
-sc = spark.sparkContext
-
-# Create RDD
-numbers = sc.parallelize([1, 2, 3, 4, 5])
-
-# Square each number
-squared_numbers = numbers.map(lambda x: x * x)
-
-# Show result
-print(squared_numbers.collect())
-
-# Stop Spark
-spark.stop()'''
-
-Practical 7 B. Working with different transformation and action 
-on rdd by fetching data from external file.
-
-'''from pyspark import SparkContext
-sc = SparkContext("local","Iris")
-iris = sc.textFile("iris.csv")
-print(iris.collect())
-# Partition info
-for i,p in enumerate(iris.glom().collect()):
-    print("Partition",i+1,":",len(p),"records")
-# Repartition
-iris = iris.repartition(8)
-print("Total Partitions:",iris.getNumPartitions())
-# Remove header
-header = iris.first()
-data = iris.filter(lambda x: x!=header)
-# Map and flatMap
-print(data.map(lambda x:x.split(",")).collect())
-flat = iris.flatMap(lambda x:x.split(","))
-print(flat.take(5))
-# Filter Virginica
-print(iris.filter(lambda x:"virginica" in x.lower()).map(lambda x:(x,1)).collect())
-# Species count
-species = ['setosa','versicolor','virginica']
-count = iris.flatMap(lambda x:x.split(",")) \
-            .filter(lambda x:x.lower() in species) \
-            .map(lambda x:(x,1)) \
-            .reduceByKey(lambda a,b:a+b)
-print(count.collect())
-sc.stop()'''
-
-Practical 8 Data Exploration using Spark SQL. 
-
-'''from pyspark.sql import SparkSession
-# Create Spark Session
-spark = SparkSession.builder.appName("IrisSQL").getOrCreate()
-# Load CSV file
-df = spark.read.csv("iris.csv", header=True, inferSchema=True)
-# Show data
-df.show(5)
-print("Total rows:", df.count())
-# Select columns
-df.select("`Sepal.Length`","`Petal.Length`").show()
-# Filter records
-df.filter(df.Species == "setosa").show()
-# GroupBy and count species
-df.groupBy("Species").count().show()
-# Create temporary SQL table
-df.createOrReplaceTempView("iris")
-# Run SQL query
-spark.sql("SELECT Species, AVG(`Petal.Length`) FROM iris GROUP BY Species").show()
-# Sort data
-df.orderBy("`Sepal.Length`").show()
-# Stop Spark
-spark.stop()'''
-
-Pracitcal 9 Create a PySpark MLlib.
-'''
-from pyspark.sql import SparkSession
-from pyspark.ml.feature import StringIndexer, VectorAssembler
-from pyspark.ml.classification import LogisticRegression
-from pyspark.ml.evaluation import MulticlassClassificationEvaluator
-
-# Create Spark Session
-spark = SparkSession.builder.appName("IrisClassification").getOrCreate()
-
-# Read CSV (no header in file)
-df = spark.read.csv("flowers.csv", header=False, inferSchema=True)
-
-# Assign column names
-df = df.toDF("sepal_length",
-             "sepal_width",
-             "petal_length",
-             "petal_width",
-             "species")
-
-# Show dataset
-df.show(5)
-print("Total Rows:", df.count())
-
-# Convert species (string) to numeric label
-indexer = StringIndexer(inputCol="species", outputCol="label")
-df = indexer.fit(df).transform(df)
-
-# Combine feature columns
-assembler = VectorAssembler(
-    inputCols=["sepal_length","sepal_width","petal_length","petal_width"],
-    outputCol="features"
-)
-
-data = assembler.transform(df)
-
-# Split dataset
-train, test = data.randomSplit([0.8,0.2], seed=42)
-
-# Logistic Regression Model
-lr = LogisticRegression(featuresCol="features", labelCol="label")
-model = lr.fit(train)
+data = pd.read_csv("AirPassengers.csv", parse_dates=["Month"], index_col="Month")
+
+# Plot original series
+plt.plot(data.index, data["#Passengers"], color="green")
+plt.title("Air Passengers Time Series")
+plt.xlabel("Year")
+plt.ylabel("Passengers")
+plt.show()
+
+# STL Decomposition
+stl = STL(data["#Passengers"], seasonal=13)
+result = stl.fit()
+
+# Plot components
+fig, axes = plt.subplots(3, 1, figsize=(7,4))
+
+axes[0].plot(result.trend, color="red")
+axes[0].set_title("Trend")
+
+axes[1].plot(result.seasonal, color="blue")
+axes[1].set_title("Seasonal")
+
+axes[2].plot(result.resid)
+axes[2].set_title("Residual")
+
+plt.tight_layout()
+plt.show()
+
+practical no 2 Data conversion of non-stationary to stationary
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.seasonal import seasonal_decompose
+from scipy.stats import boxcox
+
+# Generate random walk time series
+np.random.seed(42)
+ts = pd.Series(np.cumsum(np.random.normal(size=100)))
+
+def plot_series(series, title):
+    plt.figure(figsize=(8,3))
+    plt.plot(series)
+    plt.title(title)
+    plt.show()
+
+# Original series
+plot_series(ts, "Original Time Series")
+
+# Differencing
+diff = ts.diff().dropna()
+plot_series(diff, "Differenced Series")
+
+# Log transformation
+log_ts = np.log(ts - ts.min() + 1)
+plot_series(log_ts, "Log Transformation")
+
+# Moving average removal
+ma = ts.rolling(5).mean()
+ma_diff = ts - ma
+plot_series(ma_diff, "Moving Average Difference")
+
+# Decomposition
+decomp = seasonal_decompose(ts, model="additive", period=10)
+residual = decomp.resid.dropna()
+
+plt.figure(figsize=(8,4))
+plt.subplot(311); plt.plot(decomp.trend); plt.title("Trend")
+plt.subplot(312); plt.plot(decomp.seasonal); plt.title("Seasonal")
+plt.subplot(313); plt.plot(decomp.resid); plt.title("Residual")
+plt.tight_layout(); plt.show()
+
+# Box-Cox transformation
+boxcox_ts, lam = boxcox(ts - ts.min() + 1)
+plot_series(boxcox_ts, f"Box-Cox Transformation (λ={lam:.2f})")
+
+# ADF Test function
+def adf_test(series, name):
+    result = adfuller(series.dropna())
+    print(f"\nADF Test: {name}")
+    print("ADF Statistic:", result[0])
+    print("p-value:", result[1])
+    print("Stationary" if result[1] <= 0.05 else "Not Stationary")
+
+# Run tests
+adf_test(ts, "Original")
+adf_test(diff, "Differenced")
+adf_test(log_ts, "Log")
+adf_test(ma_diff, "Moving Avg Diff")
+adf_test(residual, "Residual")
+adf_test(pd.Series(boxcox_ts), "Box-Cox")
+
+Practical no 3 Perform a duckey-fuller test to check stationarity of data
+
+import pandas as pd
+from statsmodels.tsa.stattools import adfuller
+
+# Create example time series data
+dates = pd.date_range("2020-01-01", periods=100, freq="D")
+values = [x + 0.1*x for x in range(100)]
+
+df = pd.DataFrame({"date": dates, "value": values})
+print(df.head())
+
+# ADF Test
+adf_result = adfuller(df["value"])
+
+print("\nADF Statistic:", adf_result[0])
+print("p-value:", adf_result[1])
+
+print("\nCritical Values:")
+for key, val in adf_result[4].items():
+    print(f"{key}: {val}")
+
+# Interpretation
+print("\nSeries is Stationary" if adf_result[1] <= 0.05 else "\nSeries is Not Stationary")
+
+Practical no 4Implementation of moving averages models
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+dates = pd.date_range("2020-01-01", "2020-01-31")
+prices = [43,31,1,10,20,24,26,27,34,35,36,37,31,21,20,19,18,19,20,24,28,29,
+          20,32,34,35,36,30,32,30,23]
+
+df = pd.DataFrame({"Date": dates, "Price": prices})
+
+# Moving averages
+for window in [3,4,5]:
+    df[f"{window}-MA"] = df["Price"].rolling(window).mean()
+
+# Plot
+df.plot(x="Date", y=["Price","3-MA","4-MA","5-MA"])
+plt.show()
+
+Practical no 5 Demonstration of autocorrelation functions and partial autocorrelation functions.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.stattools import acf, pacf
+
+# Load dataset
+df = pd.read_csv("AirPassengers.csv")
+
+# Plot time series
+plt.figure(figsize=(7,4))
+plt.plot(df['#Passengers'], color='green', label='Passengers')
+plt.title("Air Passengers Dataset")
+plt.xlabel("Time")
+plt.ylabel("Passengers")
+plt.legend()
+plt.show()
+
+# ACF and PACF plots
+plot_acf(df['#Passengers'], lags=40)
+plt.title("ACF")
+plt.show()
+
+plot_pacf(df['#Passengers'], lags=40, method='ywm')
+plt.title("PACF")
+plt.show()
+
+# Numerical values
+acf_values = acf(df['#Passengers'], nlags=40)
+pacf_values = pacf(df['#Passengers'], nlags=40, method='ywm')
+
+print("ACF Values:\n", acf_values)
+print("\nPACF Values:\n", pacf_values)
+
+Practical no 6 Implementation of Autoregressive models.
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.ar_model import AutoReg
+from sklearn.metrics import mean_squared_error
+
+# Generate synthetic time series
+np.random.seed(20)
+series = pd.Series([50 + 0.8*i + np.random.normal(scale=5) for i in range(100)])
+
+# Train-Test split
+train_size = int(len(series)*0.8)
+train, test = series[:train_size], series[train_size:]
+
+# Train AR model
+model = AutoReg(train, lags=5).fit()
 
 # Predictions
-pred = model.transform(test)
-pred.select("species","prediction").show()
+pred = model.predict(start=len(train), end=len(series)-1)
 
-# Model Evaluation
-evaluator = MulticlassClassificationEvaluator(
-    labelCol="label",
-    predictionCol="prediction",
-    metricName="accuracy"
+# Evaluation
+mse = mean_squared_error(test, pred)
+print("Mean Squared Error:", round(mse,4))
+
+# Plot
+plt.plot(test, label="Actual")
+plt.plot(pred, "--", label="Predicted")
+plt.title("AutoReg Model Prediction")
+plt.legend()
+plt.show()
+
+Practical no 7Implementation of ARIMA model.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.arima.model import ARIMA
+
+# Load dataset
+df = pd.read_csv("AirPassengers.csv")
+series = df["#Passengers"]
+# Plot original series
+plt.plot(series)
+plt.title("AirPassengers Time Series")
+plt.show()
+
+# ADF Test
+def adf_test(data):
+    result = adfuller(data.dropna())
+    print("ADF Statistic:", result[0])
+    print("p-value:", result[1])
+print("ADF Test for Original Series")
+adf_test(series)
+
+# Differencing
+series_diff = series.diff().dropna()
+print("\nADF Test After Differencing")
+adf_test(series_diff)
+
+# ACF & PACF
+plot_acf(series_diff)
+plt.show()
+plot_pacf(series_diff, method="ywm")
+plt.show()
+# ARIMA Model
+model = ARIMA(series, order=(1,1,1))
+model_fit = model.fit()
+print(model_fit.summary())
+
+# Forecast
+forecast = model_fit.forecast(steps=10)
+
+plt.plot(series, label="Original")
+plt.plot(range(len(series), len(series)+10), forecast, color="red", label="Forecast")
+plt.legend()
+plt.title("ARIMA Forecast")
+plt.show()
+
+Practical no 8 SARIMA model
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+# Load dataset
+df = pd.read_csv("AirPassengers.csv")
+series = df["#Passengers"]
+
+# Plot series
+plt.plot(series)
+plt.title("AirPassengers Dataset")
+plt.show()
+
+# ADF Test
+def adf_test(data):
+    result = adfuller(data.dropna())
+    print("ADF Statistic:", result[0])
+    print("p-value:", result[1])
+
+print("ADF Test")
+adf_test(series)
+
+# Fit SARIMAX Model
+model = SARIMAX(series,
+                order=(1,1,1),
+                seasonal_order=(1,1,1,12))
+
+model_fit = model.fit()
+
+print(model_fit.summary())
+
+# Forecast
+forecast = model_fit.forecast(steps=12)
+
+plt.plot(series, label="Original")
+plt.plot(range(len(series), len(series)+12), forecast, color="red", label="Forecast")
+plt.legend()
+plt.title("SARIMAX Forecast")
+plt.show()
+
+Practical 9
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.api import SimpleExpSmoothing, Holt, ExponentialSmoothing
+
+# Load dataset
+data = pd.read_csv("AirPassengers.csv", parse_dates=["Month"], index_col="Month")
+# Plot original data
+plt.plot(data)
+plt.title("Air Passengers Dataset")
+plt.xlabel("Month")
+plt.ylabel("Passengers")
+plt.show()
+
+# Function to train model and plot results
+def plot_forecast(model, title):
+    fit = model.fit()
+    forecast = fit.forecast(40)
+    plt.plot(data, label="Original")
+    plt.plot(fit.fittedvalues, label="Fitted")
+    plt.plot(forecast, label="Forecast")
+    plt.title(title)
+    plt.xlabel("Year")
+    plt.ylabel("Passengers")
+    plt.legend()
+    plt.show()
+
+# Single Exponential Smoothing
+plot_forecast(SimpleExpSmoothing(data), "Single Exponential Smoothing")
+
+# Double Exponential Smoothing (Holt)
+plot_forecast(Holt(data), "Double Exponential Smoothing")
+
+# Holt-Winters Method
+plot_forecast(
+    ExponentialSmoothing(data, trend="add", seasonal="add", seasonal_periods=12),
+    "Holt-Winters Exponential Smoothing"
 )
 
-accuracy = evaluator.evaluate(pred)
-print("Accuracy:", accuracy)
-
-# Stop Spark
-spark.stop()'''

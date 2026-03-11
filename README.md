@@ -341,3 +341,27 @@ plot_forecast(
     "Holt-Winters Exponential Smoothing"
 )
 
+EXTRA -------moving avg---------------
+import pandas as pd
+dates = pd.date_range(start = '2020-01-01', end = '2020-01-31', freq = 'd').tolist()
+numbers = [43, 31, 1, 10, 20, 24, 26, 27, 34, 35, 36, 37, 31, 21, 20, 19, 18, 19, 20, 24, 28, 29,
+           20, 32, 34, 35, 36, 30, 32, 30, 23]
+df = pd.DataFrame({'Dates': dates, 'Price': numbers})
+df.head()
+df.plot.line(x = 'Dates', y = 'Price')
+
+df1 = pd.DataFrame({'Dates': dates, 'Price': numbers})
+df1['3 - Moving Average'] = df1['Price'].rolling(window = 3).mean()
+df1.head()
+df1.plot.line(x = 'Dates', y = ['Price', '3 - Moving Average'])
+
+df2 = pd.DataFrame({'Dates': dates, 'Price': numbers})
+df2['4 - Moving Average'] = df2['Price'].rolling(window = 4).mean()
+df2.head()
+df2.plot.line(x = 'Dates', y = ['Price', '4 - Moving Average'])
+
+df3 = pd.DataFrame({'Dates': dates, 'Price': numbers})
+df3['5 - Moving Average'] = df3['Price'].rolling(window = 5).mean()
+df3.head()
+df3.plot.line(x = 'Dates', y = ['Price', '5 - Moving Average'])
+

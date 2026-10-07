@@ -1,215 +1,311 @@
-### **Practical 1: Web Scraping**
-**Aim:** Scrape data from a webpage and store it into a CSV format.
+Practical 1
+   1.1 Introduction to Optimization
 
-import requests
-from bs4 import BeautifulSoup
-import pandas as pd
-
-# Scrape quotes
-url = 'https://quotes.toscrape.com/'
-soup = BeautifulSoup(requests.get(url).text, 'html.parser')
-
-quotes = [q.text for q in soup.find_all('span', class_='text')]
-authors = [a.text for a in soup.find_all('small', class_='author')]
-
-# Save to CSV
-df = pd.DataFrame({'Quote': quotes, 'Author': authors})
-df.to_csv('scraped_quotes.csv', index=False)
-display(df.head())
-
----
-### **Practical 2: Sentiment Analysis**
-**Aim:** Implementation of Sentiment Analysis.
-
-import nltk
-from nltk.sentiment import SentimentIntensityAnalyzer
-
-nltk.download('vader_lexicon', quiet=True)
-sia = SentimentIntensityAnalyzer()
-
-sentences = [
-    "I absolutely love learning Natural Language Processing!",
-    "The weather today is extremely gloomy and depressing.",
-    "We had a normal day at the office."
-]
-
-for s in sentences:
-    score = sia.polarity_scores(s)['compound']
-    sentiment = "Positive" if score >= 0.05 else "Negative" if score <= -0.05 else "Neutral"
-    print(f'"{s}" -> {sentiment} ({score})')
-
----
-### **Practical 3: Text Preprocessing**
-**Aim:** Implementation of standard Text Preprocessing techniques (Tokenization, Lowercasing, Stopwords Removal, Stemming, and Lemmatization).
-
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer, WordNetLemmatizer
-
-nltk.download(['punkt', 'punkt_tab', 'stopwords', 'wordnet', 'omw-1.4'], quiet=True)
-
-text = "The quick brown foxes are jumping over the lazy dogs."
-
-# 1. Lowercasing
-lowered = text.lower()
-print("Lowercased:", lowered)
-
-# 2. Tokenization
-tokens = [w for w in word_tokenize(lowered) if w.isalnum()]
-print("Tokens:", tokens)
-
-# 3. Stopwords Removal
-stop_words = set(stopwords.words('english'))
-filtered = [w for w in tokens if w not in stop_words]
-print("Stop Words Removed:", filtered)
-
-# 4. Stemming & Lemmatization
-stemmer = PorterStemmer()
-lemmatizer = WordNetLemmatizer()
-print("Stemmed:", [stemmer.stem(w) for w in filtered])
-print("Lemmatized:", [lemmatizer.lemmatize(w) for w in filtered])
-
----
-### **Practical 4: Parser in NLP**
-**Aim:** Demonstrate parsing using parsers like NLTK's Chart/Recursive Descent Parser or SpaCy Dependency Parser.
-
-import nltk
-import spacy
-from spacy import displacy
-
-# 1. NLTK CFG Parsing
-grammar = nltk.CFG.fromstring("""
-  S -> NP VP
-  VP -> V NP | V NP PP
-  PP -> P NP
-  V -> "saw"
-  NP -> "Mary" | Det N | Det N PP
-  Det -> "a" | "the"
-  N -> "dog" | "park"
-  P -> "in"
-""")
-
-sentence = "Mary saw a dog in the park".split()
-parser = nltk.RecursiveDescentParser(grammar)
-print("--- NLTK CFG Parser Trees ---")
-for tree in parser.parse(sentence):
-    tree.pretty_print()
-
-# 2. SpaCy Dependency Parser Graph
-print("\n--- SpaCy Dependency Parse Graph ---")
-nlp = spacy.load("en_core_web_sm")
-doc = nlp("Mary saw a dog in the park")
-displacy.render(doc)
-
----
-### **Practical 5: Feature Extraction Techniques**
-**Aim:** Perform Feature Extraction techniques (CountVectorizer/TF-IDF) in an NLP task.
-
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-import pandas as pd
-
-corpus = [
-    "Natural Language Processing is amazing.",
-    "Feature extraction is a crucial step in NLP."
-]
-
-# Count Vectorizer
-cv = CountVectorizer()
-cv_df = pd.DataFrame(cv.fit_transform(corpus).toarray(), columns=cv.get_feature_names_out())
-display("CountVectorizer:", cv_df)
-
-# TF-IDF
-tfidf = TfidfVectorizer()
-tfidf_df = pd.DataFrame(tfidf.fit_transform(corpus).toarray(), columns=tfidf.get_feature_names_out())
-display("TF-IDF:", tfidf_df)
-
----
-### **Practical 6: One Hot Encoding**
-**Aim:** Demonstrate One Hot Encoding representation of words or documents.
+Aim:
+To understand the basic concept of optimization by finding the minimum value of a mathematical function.
 
 import numpy as np
-import pandas as pd
+import matplotlib.pyplot as plt
 
-words = "NLP models process text inputs".split()
-unique = sorted(list(set(words)))
+def f(x):
+    return (x - 3)**2 + 2
 
-# Map each word to a one-hot vector
-ohe_matrix = np.eye(len(unique))
-df_ohe = pd.DataFrame(ohe_matrix, index=unique, columns=unique)
-display(df_ohe.loc[words])
+x = np.linspace(-2, 8, 100)
+y = f(x)
 
----
-### **Practical 7: Bag-of-Words (BOW)**
-**Aim:** Implement Bag-Of-Words model from scratch and analyze the frequency vectors.
+minimum_x = 3
+minimum_y = f(minimum_x)
 
-import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
+print("Minimum Point:", minimum_x)
+print("Minimum Value:", minimum_y)
 
-documents = [
-    "the quick brown fox",
-    "jumped over the lazy dog"
-]
+plt.plot(x, y)
+plt.scatter(minimum_x, minimum_y, color="red")
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.title("Optimization of a Function")
+plt.grid()
+plt.show()
 
-# 1. BoW using Library (scikit-learn)
-print("--- Bag of Words (using CountVectorizer Library) ---")
-vectorizer = CountVectorizer()
-bow_lib = vectorizer.fit_transform(documents).toarray()
-df_lib = pd.DataFrame(bow_lib, columns=vectorizer.get_feature_names_out())
-display(df_lib)
+Practical 2
+2.1 Python for Optimization
 
-# 2. BoW from Scratch Logic
-print("\n--- Bag of Words (from Scratch Custom Logic) ---")
-vocab = sorted(list(set(" ".join(documents).split())))
-bow_scratch = [[doc.split().count(word) for word in vocab] for doc in documents]
-df_scratch = pd.DataFrame(bow_scratch, columns=vocab)
-display(df_scratch)
+Aim:
+To understand the use of Python, NumPy, and Matplotlib for solving optimization problems.
 
----
-### **Practical 8: N-Grams**
-**Aim:** Build Character-level or Word-level Bigrams, Trigrams, and N-grams.
+import numpy as np
+import matplotlib.pyplot as plt
 
-def get_ngrams(text, n):
-    words = text.split()
-    return [" ".join(words[i:i+n]) for i in range(len(words) - n + 1)]
+# Function
+def f(x):
+    return x**2 - 4*x + 5
 
-sample = "Natural Language Processing is a subset of AI"
-print("Bigrams (N=2):", get_ngrams(sample, 2))
-print("Trigrams (N=3):", get_ngrams(sample, 3))
-print("Quadgrams (N=4):", get_ngrams(sample, 4))
+# Generate values
+x = np.linspace(-2, 6, 100)
+y = f(x)
 
----
-### **Practical 9: Term Frequency-Inverse Document Frequency (TF-IDF)**
-**Aim:** Implement TF-IDF calculations to assign importance scores to terms.
+# Minimum point
+min_index = np.argmin(y)
+
+print("Minimum x =", x[min_index])
+print("Minimum f(x) =", y[min_index])
+
+# Plot
+plt.plot(x, y)
+plt.scatter(x[min_index], y[min_index], color="red")
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.title("Function Optimization using Python")
+plt.grid()
+plt.show()
+
+Practical 3 — Classical Optimization Technique
+3.1 First and Second Derivative Method
+
+Aim:
+To find the minimum point of a function using the first and second derivative method.
+
+import sympy as sp
+
+x = sp.symbols('x')
+
+f = x**2 - 6*x + 10
+
+# First derivative
+df = sp.diff(f, x)
+
+# Critical point
+point = sp.solve(df, x)[0]
+
+# Second derivative
+d2f = sp.diff(f, x, 2)
+
+print("Critical Point =", point)
+print("Second Derivative =", d2f)
+print("Minimum Value =", f.subs(x, point))
+
+3.2 Classical Optimization — Stationary Points
+
+Aim: To find and classify stationary points of single-variable and two-variable functions using classical optimization methods in Python
+
+import sympy as sp
+
+x=sp.symbols('x')
+f=x**3-6*x**2+9*x
+
+d=sp.diff(f,x)
+d2=sp.diff(f,x,2)
+
+for p in sp.solve(d,x):
+    print("Point:",p)
+    print("Value:",f.subs(x,p))
+    print("Type:",
+          "Minimum" if d2.subs(x,p)>0
+          else "Maximum" if d2.subs(x,p)<0
+          else "Cannot decide")
+
+x,y=sp.symbols('x y')
+f=x**2+y**2-4*x-6*y
+
+p=sp.solve([sp.diff(f,x),sp.diff(f,y)],[x,y])
+
+print("2D Point:",p)
+print("Minimum:",f.subs(p))
+
+Practical 4 — Unconstrained Optimization using Elimination Methods
+
+4.1 Interval Halving / Golden Section
+
+Aim: To find the minimum of a single-variable function using Interval Halving Method and Golden Section Search Method.
 
 import math
-import pandas as pd
 
-docs = ["nlp is great", "computers understand nlp", "great computers"]
-unique_words = set(" ".join(docs).split())
+def f(x):
+    return (x - 2)**2 + 1
 
-# TF-IDF calculation
-tfidf_data = []
-for doc in docs:
-    words = doc.split()
-    scores = {}
-    for word in unique_words:
-        tf = words.count(word) / len(words)
-        df = sum(1 for d in docs if word in d.split())
-        idf = math.log(len(docs) / df)
-        scores[word] = tf * idf
-    tfidf_data.append(scores)
+# -----------------------------
+# Interval Halving Method
+# -----------------------------
+def interval_halving(a, b, tol=0.01):
+    while (b - a) > tol:
+        mid = (a + b) / 2
+        x1 = (a + mid) / 2
+        x2 = (mid + b) / 2
 
-display(pd.DataFrame(tfidf_data))
+        if f(x1) < f(mid):
+            b = mid
+        elif f(x2) < f(mid):
+            a = mid
+        else:
+            a = x1
+            b = x2
 
----
-### **Practical 10: Word Embedding in Natural Language Processing**
-**Aim:** Demonstrate the working of Word Embeddings in NLP using Gensim's Word2Vec.
+    return (a + b) / 2
 
-from gensim.models import Word2Vec
+# -----------------------------
+# Golden Section Search
+# -----------------------------
+def golden_section(a, b, tol=0.01):
+    r = (math.sqrt(5) - 1) / 2
 
-data = [["natural", "language", "processing", "is", "fun"], ["nlp", "is", "fun"]]
-model = Word2Vec(sentences=data, vector_size=10, window=2, min_count=1, workers=1)
+    while (b - a) > tol:
+        x1 = b - r * (b - a)
+        x2 = a + r * (b - a)
 
-print("Vector for 'nlp':", model.wv['nlp'][:5])
-print("Most similar to 'nlp':", model.wv.most_similar('nlp', topn=2))
+        if f(x1) < f(x2):
+            b = x2
+        else:
+            a = x1
+
+    return (a + b) / 2
+
+# Initial interval
+a = 0
+b = 5
+
+x1 = interval_halving(a, b)
+x2 = golden_section(a, b)
+
+print("Interval Halving Method")
+print("Minimum x =", round(x1, 3))
+print("Minimum f(x) =", round(f(x1), 3))
+
+print("\nGolden Section Method")
+print("Minimum x =", round(x2, 3))
+print("Minimum f(x) =", round(f(x2), 3))
+
+4.2 Fibonacci Search Method
+
+Aim: To find the minimum of a single-variable function using the Fibonacci Search Method.
+
+f=lambda x:(x-3)**2+2
+
+def fib(a,b,n):
+    F=[0,1]
+    for i in range(2,n+1):
+        F.append(F[-1]+F[-2])
+
+    for k in range(n-2):
+        x1=a+F[n-k-2]/F[n-k]*(b-a)
+        x2=a+F[n-k-1]/F[n-k]*(b-a)
+
+        if f(x1)<f(x2): b=x2
+        else: a=x1
+
+    return (a+b)/2
+
+x=fib(0,6,10)
+print("Minimum x =",round(x,3))
+print("Minimum f(x) =",round(f(x),3))
+
+Practical 5 — Unconstrained Optimization using Interpolation Method
+
+5.1 Quadratic Interpolation Method
+
+Aim: To find the minimum of a single-variable function using the Quadratic Interpolation Method and plot the function with its minimum point.
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+f=lambda x:(x-4)**2+3
+
+def q(x1,x2,x3):
+    a,b,c=f(x1),f(x2),f(x3)
+    return ((x2**2-x3**2)*a+(x3**2-x1**2)*b+
+            (x1**2-x2**2)*c)/(2*((x2-x3)*a+
+            (x3-x1)*b+(x1-x2)*c))
+
+x=q(2,4,6)
+
+print("Minimum x =",round(x,3))
+print("Minimum f(x) =",round(f(x),3))
+
+X=np.linspace(0,8,100)
+plt.plot(X,f(X))
+plt.scatter(x,f(x),color="red")
+plt.grid()
+plt.show()
+
+Practical 6 — Unconstrained Optimization using Direct Root Methods
+
+6.1 Newton-Raphson Method
+
+Aim: To find the minimum point of a function using the Newton-Raphson Method.
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+f=lambda x:x**2-6*x+10
+df=lambda x:2*x-6
+
+x=0
+
+for i in range(5):
+    x=x-df(x)/2
+
+print("Minimum x =",round(x,3))
+print("Minimum f(x) =",round(f(x),3))
+
+X=np.linspace(-2,8,100)
+plt.plot(X,f(X))
+plt.scatter(x,f(x),color="red")
+plt.grid()
+plt.show()
+
+Practical 7 — Constrained Optimization using Lagrange Multiplier
+
+7.1 Lagrange Multiplier Method
+
+Aim: To find the minimum of a function subject to an equality constraint using the Lagrange Multiplier Method and plot the result.
+
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+
+x,y,l=sp.symbols('x y l')
+
+f=x**2+y**2
+L=f+l*(x+y-4)
+
+p=sp.solve([sp.diff(L,x),sp.diff(L,y),sp.diff(L,l)],[x,y,l])
+
+print("Optimal x =",p[x])
+print("Optimal y =",p[y])
+print("Minimum =",f.subs(p))
+
+X=np.linspace(0,4,100)
+plt.plot(X,4-X)
+plt.scatter(float(p[x]),float(p[y]),color="red")
+plt.grid()
+plt.show()
+
+Practical 8 — Unconstrained Optimization using Bisection Method
+
+8.1 Bisection Method
+
+Aim: To find the minimum point of a function by applying the Bisection Method.
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+f=lambda x:x**2-4*x+5
+df=lambda x:2*x-4
+
+a,b=0,5
+
+for i in range(20):
+    m=(a+b)/2
+
+    if df(m)==0: break
+    elif df(a)*df(m)<0: b=m
+    else: a=m
+
+print("Minimum x =",round(m,3))
+print("Minimum f(x) =",round(f(m),3))
+
+x=np.linspace(0,5,100)
+plt.plot(x,f(x))
+plt.scatter(m,f(m),color="red")
+plt.grid()
+plt.show() help me prpaer for exam 
+How many codes re there
